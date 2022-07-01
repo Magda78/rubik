@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { getSession, useSession, signIn, signOut } from 'next-auth/react';
+import Item from '../components/item';
 
 function Home({ data }) {
 	const { data: session, status } = useSession();
@@ -20,13 +21,12 @@ function Home({ data }) {
 						{!session ? 'SignUp' : 'SignOut'}
 					</button>
 				</div>
+				{session ? (
+					<div className="flex flex-col mt-10">
+						{data.map((item) => <Item key={item.id} name={item.name} img={item.img} />)}
+					</div>
+				) : null}
 			</div>
-			{session ? <div>
-				{data.map((item) => {
-					console.log(item);
-				})}
-			</div> : null}
-			
 		</div>
 	);
 }
