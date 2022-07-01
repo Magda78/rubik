@@ -1,19 +1,8 @@
 import Head from 'next/head';
-import { useSession, signIn, signOut } from 'next-auth/react';
-import { useRouter } from 'next/router';
+import { getSession, useSession, signIn, signOut } from 'next-auth/react';
 
-function Home() {
+function Home({ data }) {
 	const { data: session, status } = useSession();
-	const router = useRouter();
-	const signInHandler = () => {
-		if (status === 'authenticated') {
-			console.log(session.user.email);
-			router.push('/main');
-			//signOut()
-		} else {
-			signIn();
-		}
-	};
 	return (
 		<div>
 			<Head>
@@ -25,14 +14,30 @@ function Home() {
 				<div className="flex justify-between p-5 items-center border-b-2">
 					<img src="img/rubik_1.png" className="w-12 h-12" />
 					<button
-						onClick={signInHandler}
+						onClick={() => (!session ? signIn() : signOut())}
 						className="bg-green-700 text-yellow-300 hover:bg-yellow-300 hover:text-green-700 p-3 hover:scale-105 transition transform duration-200 easy-out"
 					>
-						SignUp
+						{!session ? 'SignUp' : 'SignOut'}
 					</button>
 				</div>
 			</div>
+			{session ? <div>
+				{data.map((item) => {
+					console.log(item);
+				})}
+			</div> : null}
+			
 		</div>
 	);
 }
 export default Home;
+export async function getServerSideProps(context) {
+	const session = await getSession(context);
+	const res = await fetch('http://localhost:3002/api/scramble');
+	const data = await res.json();
+	return {
+		props: {
+			data: session ? data : null
+		}
+	};
+}
