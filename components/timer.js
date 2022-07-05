@@ -1,5 +1,11 @@
 import { useState } from 'react';
-function Timer() {
+import { getSession, useSession, signIn, signOut } from 'next-auth/react';
+import { db } from '../firebase';
+import { addDoc, collection, Timestamp } from 'firebase/firestore';
+import { FirebaseError } from 'firebase/app';
+
+function Timer({ name }) {
+	const { data: session, status } = useSession();
 	const [ seconds, setSeconds ] = useState(0);
 	const [ secId, setSecId ] = useState(null);
 	const [ minutes, setMinutes ] = useState(0);
@@ -8,7 +14,7 @@ function Timer() {
 	const [ hourId, setHourId ] = useState(null);
 	const [ start, setStart ] = useState(false);
 	const [ done, setDone ] = useState(false);
-	const startHandler = () => {
+	const startHandler = (name) => {
 		setStart(true);
 		setSecId(
 			setInterval(() => {
@@ -27,9 +33,13 @@ function Timer() {
 		);
 	};
 
-	const stopHandler = () => {
+	const stopHandler = (name) => {
 		setDone(true);
 		clearInterval(secId, minId, hourId);
+		//const dbInstance = collection(db, 'players');
+		//addDoc(dbInstance, {
+		//	name: name,
+		//	timer: hours + minutes + seconds,
 	};
 	return (
 		<div className="flex flex-col p-2">
@@ -48,7 +58,7 @@ function Timer() {
 				</button>
 				<button
 					disabled={done}
-					onClick={stopHandler}
+					onClick={() => stopHandler(name)}
 					className="disabled:bg-gray-200 disabled:text-black bg-green-700 text-yellow-300 hover:bg-yellow-300 hover:text-green-700 p-3 hover:scale-105 transition transform duration-200 easy-out"
 				>
 					DONE
