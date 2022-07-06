@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { getSession, useSession, signIn, signOut } from 'next-auth/react';
 import { db } from '../firebase';
-import { addDoc, collection, Timestamp } from 'firebase/firestore';
-import { FirebaseError } from 'firebase/app';
+import { addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
 
 function Timer({ name }) {
 	const { data: session, status } = useSession();
@@ -36,10 +35,18 @@ function Timer({ name }) {
 	const stopHandler = (name) => {
 		setDone(true);
 		clearInterval(secId, minId, hourId);
-		//const dbInstance = collection(db, 'players');
-		//addDoc(dbInstance, {
-		//	name: name,
-		//	timer: hours + minutes + seconds,
+		let newDate = new Date();
+		newDate.setSeconds(seconds)
+		newDate.setMinutes(minutes)
+		newDate.setHours(hours)
+		const time = newDate.getHours() +':'+newDate.getMinutes()+':'+newDate.getSeconds()
+		console.log(newDate.toString())
+		console.log(time.toString())
+		const dbInstance = collection(db, 'players', session.user.email, name);
+		addDoc(dbInstance, {
+			timer: time,
+			timestamp: serverTimestamp()
+		});
 	};
 	return (
 		<div className="flex flex-col p-2">
